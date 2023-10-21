@@ -7,8 +7,8 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
+//import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+//import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.ADIS16448_IMU;
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -17,10 +17,10 @@ public class Drivetrain {
   public static final double kMaxSpeed = 3.0; // 3 meters per second
   public static final double kMaxAngularSpeed = Math.PI; // 1/2 rotation per second
 
-  private final Translation2d m_frontLeftLocation = new Translation2d(0.381, 0.381);
-  private final Translation2d m_frontRightLocation = new Translation2d(0.381, -0.381);
-  private final Translation2d m_backLeftLocation = new Translation2d(-0.381, 0.381);
-  private final Translation2d m_backRightLocation = new Translation2d(-0.381, -0.381);
+  private final Translation2d m_frontLeftLocation = new Translation2d(0.362, 0.235);
+  private final Translation2d m_frontRightLocation = new Translation2d(0.362, -0.235);
+  private final Translation2d m_backLeftLocation = new Translation2d(-0.362, 0.235);
+  private final Translation2d m_backRightLocation = new Translation2d(-0.362, -0.235);
 
   private final SwerveModule m_frontLeft = new SwerveModule(1, 5, 0, 1, 2, 3);
   private final SwerveModule m_frontRight = new SwerveModule(3, 7, 4, 5, 6, 7);
@@ -33,6 +33,9 @@ public class Drivetrain {
       new SwerveDriveKinematics(
           m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation);
 
+         
+ /** 
+      
   private final SwerveDriveOdometry m_odometry =
       new SwerveDriveOdometry(
           m_kinematics,
@@ -43,7 +46,7 @@ public class Drivetrain {
             m_backLeft.getPosition(),
             m_backRight.getPosition()
           });
-
+*/
   public Drivetrain() {
     m_imu.reset(); //Probably not needed
   }
@@ -70,7 +73,7 @@ public class Drivetrain {
   }
 
   /** Updates the field relative position of the robot. */
-  public void updateOdometry() {
+  /**public void updateOdometry() {
     m_odometry.update(
         new Rotation2d(m_imu.getAngle()),
         new SwerveModulePosition[] {
@@ -79,5 +82,5 @@ public class Drivetrain {
           m_backLeft.getPosition(),
           m_backRight.getPosition()
         });
-  }
+  }*/
 }
