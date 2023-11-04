@@ -38,10 +38,11 @@ public class SwerveModule {
 
   // Gains are for example purposes only - must be determined for your own robot!
   private final SparkMaxPIDController m_drivePIDController;
+
   //private final PIDController m_drivePIDController = new PIDController(1, 0, 0);
 
   // Gains are for example purposes only - must be determined for your own robot!
-  private final PIDController m_turningPIDController = new PIDController(1, 0, 0);
+  private final PIDController m_turningPIDController = new PIDController(1, 1, 1);
 
   // Values go in constants file for command based system. Here for reference for working test code.
   public static final double kWheelDiameterMeters = 0.169;
@@ -86,6 +87,15 @@ public class SwerveModule {
     // but we want meters and meters per second to use with WPILib's swerve APIs.
     m_driveEncoder.setPositionConversionFactor(kDrivingEncoderPositionFactor);
     m_driveEncoder.setVelocityConversionFactor(kDrivingEncoderVelocityFactor);
+
+    // Set the PID gains for the driving motor. Note these are example gains, and you
+  // may need to tune them for your own robot!
+    m_drivePIDController.setP(1);
+    m_drivePIDController.setI(0);
+    m_drivePIDController.setD(0);
+    m_drivePIDController.setFF(0);
+    m_drivePIDController.setOutputRange(-1,
+        1); //Can be referenced back to a constants file in cammand based robot
 
     // Set the distance per pulse for the drive encoder. We can simply use the
     // distance traveled for one rotation of the wheel divided by the encoder
