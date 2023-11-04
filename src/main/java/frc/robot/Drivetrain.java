@@ -19,8 +19,8 @@ public class Drivetrain {
 
   private final Translation2d m_frontLeftLocation = new Translation2d(0.362, 0.235);
   private final Translation2d m_frontRightLocation = new Translation2d(0.362, -0.235);
-  private final Translation2d m_backLeftLocation = new Translation2d(-0.362, 0.235);
-  private final Translation2d m_backRightLocation = new Translation2d(-0.362, -0.235);
+  private final Translation2d m_backLeftLocation = new Translation2d(0.362, -0.235);
+  private final Translation2d m_backRightLocation = new Translation2d(0.362, 0.235);
 
   private final SwerveModule m_frontLeft = new SwerveModule(1, 5, 0, 1);
   private final SwerveModule m_frontRight = new SwerveModule(3, 7, 2, 3);
