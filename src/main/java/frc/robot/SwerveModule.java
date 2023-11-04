@@ -43,6 +43,16 @@ public class SwerveModule {
   // Gains are for example purposes only - must be determined for your own robot!
   private final PIDController m_turningPIDController = new PIDController(1, 0, 0);
 
+  // Values go in constants file for command based system. Here for reference for working test code.
+  public static final double kWheelDiameterMeters = 0.169;
+  public static final int kDrivingMotorPinionTeeth = 14;
+  public static final double kDrivingMotorReduction = (45.0 * 22) / (kDrivingMotorPinionTeeth * 15);
+  public static final double kDrivingEncoderPositionFactor = (kWheelDiameterMeters * Math.PI)
+        / kDrivingMotorReduction; // meters
+  public static final double kDrivingEncoderVelocityFactor = ((kWheelDiameterMeters * Math.PI)
+        / kDrivingMotorReduction) / 60.0; // meters per second
+
+
   // Gains are for example purposes only - must be determined for your own robot!
   //private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(1, 3);
   //private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(1, 0.5);
@@ -68,11 +78,19 @@ public class SwerveModule {
     
     m_driveEncoder = m_driveMotor.getEncoder();
     m_turningEncoder = new Encoder(turningEncoderChannelA, turningEncoderChannelB);
+    m_drivePIDController = m_driveMotor.getPIDController();
+    m_drivePIDController.setFeedbackDevice(m_driveEncoder);
+
+     // Apply position and velocity conversion factors for the driving encoder. The
+    // native units for position and velocity are rotations and RPM, respectively,
+    // but we want meters and meters per second to use with WPILib's swerve APIs.
+    m_driveEncoder.setPositionConversionFactor(kDrivingEncoderPositionFactor);
+    m_driveEncoder.setVelocityConversionFactor(kDrivingEncoderVelocityFactor);
 
     // Set the distance per pulse for the drive encoder. We can simply use the
     // distance traveled for one rotation of the wheel divided by the encoder
     // resolution.
-    m_driveEncoder.setDistancePerPulse(2 * Math.PI * kWheelRadius / kDriveEncoderResolution);
+    //m_driveEncoder.setDistancePerPulse(2 * Math.PI * kWheelRadius / kDriveEncoderResolution);
 
     // Set the distance (in this case, angle) in radians per pulse for the turning encoder.
     // This is the the angle through an entire rotation (2 * pi) divided by the
@@ -91,7 +109,7 @@ public class SwerveModule {
    */
   public SwerveModuleState getState() {
     return new SwerveModuleState(
-        m_driveEncoder.getRate(), new Rotation2d(m_turningEncoder.getDistance()));
+        m_driveEncoder.getVelocity(), new Rotation2d(m_turningEncoder.getDistance()));
   }
 
   /**
@@ -101,7 +119,7 @@ public class SwerveModule {
    */
   public SwerveModulePosition getPosition() {
     return new SwerveModulePosition(
-        m_driveEncoder.getDistance(), new Rotation2d(m_turningEncoder.getDistance()));
+        m_driveEncoder.getPosition(), new Rotation2d(m_turningEncoder.getDistance()));
   }
 
   /**
@@ -122,7 +140,7 @@ public class SwerveModule {
 
     // Calculate the drive output from the drive PID controller.
     final double driveOutput =
-        m_drivePIDController.calculate(m_driveEncoder.getRate(), state.speedMetersPerSecond);
+        m_drivePIDController.getOutputMax();
 
     // Calculate the turning motor output from the turning PID controller.
     final double turnOutput =
