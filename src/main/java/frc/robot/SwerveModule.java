@@ -22,13 +22,13 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 public class SwerveModule {
-  private static final double kWheelRadius = 0.0508; //Need to update
+  private static final double kWheelRadius = 0.05845; //Need to update
   private static final int kAngleEncoderResolution = 7; //see https://www.andymark.com/products/hall-effect-two-channel-encoder
   private static final int kDriveEncoderResolution = 4096; // neo brushless settings in rev can id setting
 
-  /**private static final double kModuleMaxAngularVelocity = Drivetrain.kMaxAngularSpeed;
+  private static final double kModuleMaxAngularVelocity = Drivetrain.kMaxAngularSpeed;
   private static final double kModuleMaxAngularAcceleration =
-      2 * Math.PI; // radians per second squared*/
+      2 * Math.PI; // radians per second squared
 
   private final CANSparkMax m_driveMotor;
   private final MotorController m_turningMotor;
@@ -45,7 +45,7 @@ public class SwerveModule {
   private final PIDController m_turningPIDController = new PIDController(1, 1, 1);
 
   // Values go in constants file for command based system. Here for reference for working test code.
-  public static final double kWheelDiameterMeters = 0.169;
+  public static final double kWheelDiameterMeters = kWheelRadius * 2;
   public static final int kDrivingMotorPinionTeeth = 14;
   public static final double kDrivingMotorReduction = (45.0 * 22) / (kDrivingMotorPinionTeeth * 15);
   public static final double kDrivingEncoderPositionFactor = (kWheelDiameterMeters * Math.PI)
@@ -55,8 +55,8 @@ public class SwerveModule {
 
 
   // Gains are for example purposes only - must be determined for your own robot!
-  //private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(1, 3);
-  //private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(1, 0.5);
+  private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(1, 3);
+  private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(1, 0.5);
 
   /**
    * Constructs a SwerveModule with a drive motor, turning motor, drive encoder and turning encoder.
@@ -90,12 +90,12 @@ public class SwerveModule {
 
     // Set the PID gains for the driving motor. Note these are example gains, and you
   // may need to tune them for your own robot!
-    m_drivePIDController.setP(1);
+    m_drivePIDController.setP(0);
     m_drivePIDController.setI(0);
     m_drivePIDController.setD(0);
     m_drivePIDController.setFF(0);
     m_drivePIDController.setOutputRange(-1,
-        1); //Can be referenced back to a constants file in cammand based robot
+        1); //Can be referenced back to a constants file in command based robot
 
     // Set the distance per pulse for the drive encoder. We can simply use the
     // distance traveled for one rotation of the wheel divided by the encoder
@@ -146,19 +146,25 @@ public class SwerveModule {
     // Scale speed by cosine of angle error. This scales down movement perpendicular to the desired
     // direction of travel that can occur when modules change directions. This results in smoother
     // driving.
-    state.speedMetersPerSecond = state.angle.minus(encoderRotation).getCos();
+    state.speedMetersPerSecond *= state.angle.minus(encoderRotation).getCos();
 
     // Calculate the drive output from the drive PID controller.
     final double driveOutput =
-        m_drivePIDController.getOutputMax();
+        m_drivePIDController.getOutputMin();
+
+    final double driveFeedforward = m_driveFeedforward.calculate(state.speedMetersPerSecond);
 
     // Calculate the turning motor output from the turning PID controller.
     final double turnOutput =
         m_turningPIDController.calculate(m_turningEncoder.getDistance(), state.angle.getRadians());
 
+    final double turnFeedforward =
+        m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);
+
+
     // Calculate the turning motor output from the turning PID controller.
-    m_driveMotor.set(driveOutput);
-    m_turningMotor.set(turnOutput);
+    m_driveMotor.set(driveOutput + driveFeedforward);
+    m_turningMotor.set(turnOutput + turnFeedforward);
   }
 
 }
