@@ -90,7 +90,7 @@ public class SwerveModule {
 
     // Set the PID gains for the driving motor. Note these are example gains, and you
   // may need to tune them for your own robot!
-    m_drivePIDController.setP(0);
+    m_drivePIDController.setP(1);
     m_drivePIDController.setI(0);
     m_drivePIDController.setD(0);
     m_drivePIDController.setFF(0);
@@ -159,7 +159,7 @@ public class SwerveModule {
         m_turningPIDController.calculate(m_turningEncoder.getDistance(), state.angle.getRadians());
 
     final double turnFeedforward =
-        m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);
+        m_turnFeedforward.calculate(m_turningPIDController.getSetpoint());
 
 
     // Calculate the turning motor output from the turning PID controller.
